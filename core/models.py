@@ -33,11 +33,3 @@ class User(AbstractUser):
     id = models.AutoField(primary_key=True)
     libs = models.ManyToManyField("core.Library", related_name="users")
     langs = models.ManyToManyField("core.Language", related_name="users")
-
-class UserLib(models.Model):
-    u_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    lib_id = models.ForeignKey("core.Library", on_delete=models.CASCADE)
-
-class UserLang(models.Model):
-    u_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    lang_id = models.ForeignKey("core.Language", on_delete=models.CASCADE)
