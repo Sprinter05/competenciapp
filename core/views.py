@@ -1,18 +1,17 @@
 import ollama
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpRequest
+from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from pgvector.django import CosineDistance
 
-from .models import Embedding, Library, Language
+from .models import Embedding, Library, Language, AuthUser
 
 
 # Create your views here.
 def index(request):
     return render(request, "index.html")
 
-def profile(request):
-    return HttpResponse("Profile page")
 
 def search(request):
     query = request.GET.get("q", "")
@@ -38,7 +37,6 @@ def search(request):
         )
     ).filter(distance__lte = dist).order_by("distance")
 
-    results = []
     if category == 0:  # All (TODO: Fix this)
         results = None
     elif category == 1:  # Languages
@@ -54,11 +52,13 @@ def search(request):
     else:
         return redirect("index")
 
-    print(dist)
-    print(type(dist))
+    data = {}
+    for technology in results:
+        data[technology] = AuthUser.objects.filter(langs=technology)
 
+    print(data)
     return render(request, "result.html",
-                  context={"search": query, "distance": dist, "results": results, "category": category})
+                  context={"search": query, "distance": dist, "category": category, "data": data})
 
 
 @login_required
@@ -68,17 +68,12 @@ def profile(request):
         'languages': None,
         'libraries': None
     }
-
     return render(request, "profile.html", context)
 
-def addlang(request):
-    lang = Language(
-        name = request.POST.get("l", "")
-    )
 
 def get_user_profile(request, uid):
     context = {
-        'user': User.objects.get(pk=uid),
+        'user': AuthUser.objects.get(pk=uid),
         'languages': None,
         'libraries': None
     }
@@ -103,7 +98,7 @@ def prompt(request):
         model='llama3.2:1b',
         messages=[{
             "role": "user",
-            "content": f"{base} {query}" 
+            "content": f"{base} {query}"
         }]
     )
 
