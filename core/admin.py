@@ -1,23 +1,25 @@
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from core.models import *
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 
-# Register your models here.
-class EmbeddingAdmin(admin.ModelAdmin):
-    model = Embedding
-    list_display = ['id', 'text']
-    search_fields = ['text']
+from core.models import AuthUser
 
-class LanguageAdmin(admin.ModelAdmin):
-    model = Language
-    list_display = ['id', 'name', 'description', 'embed_id']
-    search_fields = ['name']
 
-class LibraryAdmin(admin.ModelAdmin):
-    model = Library
-    list_display = ['id', 'name', 'description', 'lang_id', 'embed_id']
-    search_fields = ['name']
+# Define an inline admin descriptor for Employee model
+# which acts a bit like a singleton
+class UserInline(admin.StackedInline):
+    model = AuthUser
+    can_delete = False
+    verbose_name_plural = "user"
 
-admin.site.register(Embedding, EmbeddingAdmin)
-admin.site.register(Language, LanguageAdmin)
-admin.site.register(Library, LibraryAdmin)
+# Define a new User admin
+class UserAdmin(BaseUserAdmin):
+    inlines = [UserInline]
+
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
+admin.site.register(Embedding)
+admin.site.register(Language)
+admin.site.register(Library)
