@@ -28,7 +28,7 @@ def search(request):
 
     neighbours = ollama.embeddings(
         prompt = query,
-        model = "nomic-embed-text"
+        model = "mxbai-embed-large"
     )
 
     # Get all matching embeds

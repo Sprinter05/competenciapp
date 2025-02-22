@@ -7,7 +7,7 @@ def insert_langs():
 
     for line in file:
         fields = line.split(",")
-        response = ollama.embed(model="nomic-embed-text", input=fields[1])
+        response = ollama.embed(model="mxbai-embed-large", input=fields[1])
         embedding = Embedding(embedding=response["embeddings"][0], text=fields[1])
         embedding.save()
         lang = Language(name=fields[1], description=fields[2], embed_id=embedding)
@@ -20,7 +20,7 @@ def insert_libs():
 
     for line in file:
         fields = line.split(",")
-        response = ollama.embed(model="nomic-embed-text", input=fields[2])
+        response = ollama.embed(model="mxbai-embed-large", input=fields[2])
         embedding = Embedding(embedding=response["embeddings"][0], text=fields[2])
         embedding.save()
         lib = Library(name=fields[2], description=fields[3], lang_id=Language(id=int(fields[1])) ,embed_id=embedding)

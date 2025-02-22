@@ -6,7 +6,7 @@ from pgvector.django import VectorField
 class Embedding(models.Model):
     id = models.AutoField(primary_key=True)
     embedding = VectorField(
-        dimensions=768,
+        dimensions=1024,
         null=False,
         blank=False,
     )
