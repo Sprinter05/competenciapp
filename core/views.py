@@ -14,9 +14,7 @@ def profile(request):
 
 def search(request):
     query = request.GET.get("q", "")
-    dist = request.GET.get("s", "")
-
-    # Get ollama vector
+    dist = request.GET.get("s", 0.5)
     neighbours = ollama.embeddings(
         prompt = query,
         model = "nomic-embed-text"
