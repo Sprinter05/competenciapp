@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from pgvector.django import VectorField
+from django.contrib.auth.models import AbstractUser
 
 
 # Holds the vector of each token
@@ -28,6 +29,11 @@ class Library(models.Model):
 
     class Meta:
         verbose_name_plural = "Libraries"
+
+class User(AbstractUser):
+    id = models.AutoField(primary_key=True)
+    libs = models.ManyToManyField("core.Library", related_name="users")
+    langs = models.ManyToManyField("core.Language", related_name="users")
 
 class UserLib(models.Model):
     u_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

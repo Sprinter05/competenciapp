@@ -1,7 +1,16 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from core.models import *
 
 # Register your models here.
+<<<<<<< HEAD
+admin.site.register(Embedding)
+admin.site.register(Language)
+admin.site.register(Library)
+admin.site.register(UserLib)
+admin.site.register(UserLang)
+admin.site.register(User, UserAdmin)
+=======
 class EmbeddingAdmin(admin.ModelAdmin):
     model = Embedding
     list_display = ['id', 'text']
@@ -33,3 +42,4 @@ admin.site.register(Language, LanguageAdmin)
 admin.site.register(Library, LibraryAdmin)
 admin.site.register(UserLib, UserLibAdmin)
 admin.site.register(UserLang, UserLangAdmin)
+>>>>>>> origin/django
