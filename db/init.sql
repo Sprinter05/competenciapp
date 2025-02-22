@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS embeddings (
   id SERIAL,
   embedding vector(4096),
   text text,
-  created_at timestamptz DEFAULT now(),
   PRIMARY KEY(id)
 );
 
