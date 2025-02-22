@@ -1,22 +1,31 @@
 # Compose a postgres database together with the extension pgvector
 services:
   ollama:
-    container_name: embedder
+    container_name: ollama
     image: ollama/ollama
     restart: unless-stopped
     ports:
       - "127.0.0.1:11434:11434"
     volumes:
-      - ollama-local:/root/.ollama
+      - "ollama_models:/root/.ollama"
+    networks:
+      - ollama-docker
   pgdb:
-    hostname: db
-    container_name: pgdb
+    container_name: postgresdb
     image: ankane/pgvector
     restart: unless-stopped
+    volumes: 
+      - "pgsql_db:/var/lib/postgresql/data"
     ports:
       - "127.0.0.1:5432:5432"
     env_file: ./.env
+    networks:
+      - ollama-docker
 
 volumes:
-  ollama-local:
-  open-webui-local:
+  ollama_models:
+  pgsql_db:
+
+networks:
+  ollama-docker:
+    external: false
