@@ -37,24 +37,25 @@ def search(request):
         )
     ).filter(distance__lte = dist).order_by("distance")
 
+    data = {}
+
     if category == 0:  # All (TODO: Fix this)
-        results = None
+        pass
     elif category == 1:  # Languages
         langs = Language.objects.all().filter(
             embed_id__in=objs.values_list("id")
         )
-        results = langs
+        for technology in langs:
+            data[technology] = AuthUser.objects.filter(langs=technology)
     elif category == 2:  # Libraries
         libs = Library.objects.all().filter(
             embed_id__in=objs.values_list("id")
         )
-        results = libs
+        for technology in libs:
+            data[technology] = AuthUser.objects.filter(libs=technology)
     else:
         return redirect("index")
 
-    data = {}
-    for technology in results:
-        data[technology] = AuthUser.objects.filter(langs=technology)
 
     print(data)
     return render(request, "result.html",
