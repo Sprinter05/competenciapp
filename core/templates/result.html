@@ -28,26 +28,6 @@
     </style>
 {% endblock %}
 {% block content %}
-<<<<<<< HEAD
-    <section class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Resultados de la búsqueda</h2>
-            <form method="get" action="{% url 'search' %}">
-                <div class="row g-4 mb-5">
-                    <div class="col-md-12">
-                        <div class="card search-card p-4">
-                            <div id="search-form" class="row g-4">
-                                <div id="text-search" class="col-md-6">
-                                    <input type="text" class="form-control" name="q"
-                                           placeholder="Buscar tecnología" value="{{ search }}">
-                                </div>
-                                <div id="range-search" class="col-md-4">
-                                    <input type="range" class="form-range" id="customRange1" min="0.2" max="0.5" step="0.001"
-                                           name="s" value="{{ distance }}">
-                                </div>
-                                <div class="col-md-2">
-                                    <button id="search-button" type="submit" class="btn btn-primary">Buscar</button>
-=======
     <section class="py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-5 fw-bold">Resultados de la búsqueda</h2>
@@ -106,19 +86,13 @@
                                             Buscar
                                         </button>
                                     </div>
->>>>>>> origin/django
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
-<<<<<<< HEAD
-            {% csrf_token %}
-            {% for technology in technologies %}
-=======
             {% for result in results %}
->>>>>>> origin/django
                 <div class="row g-4 mb-4">
                     <div class="col-md-12">
                         <div class="card feature-card p-4">
@@ -130,12 +104,6 @@
                     </div>
                 </div>
             {% endfor %}
-<<<<<<< HEAD
-        </div>
-    </section>
-
-
-=======
 
         </div>
 
@@ -168,5 +136,4 @@
         </style>
     </section>
 
->>>>>>> origin/django
 {% endblock %}
