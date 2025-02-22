@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 from pgvector.django import CosineDistance
 
-from .models import Embedding, Library, Language, UserLib, UserLang
+from .models import Embedding, Library, Language
 
 
 # Create your views here.
@@ -46,16 +46,12 @@ def search(request):
         langs = Language.objects.all().filter(
             embed_id__in=objs.values_list("id")
         )
-        results = UserLang.objects.all().filter(
-            lang_id__in=langs.values_list("id")
-        )
+        results = langs
     elif category == 2:  # Libraries
         libs = Library.objects.all().filter(
             embed_id__in=objs.values_list("id")
         )
-        results = UserLib.objects.all().filter(
-            lib_id__in=libs.values_list("id")
-        )
+        results = libs
     else:
         return redirect("index")
 
