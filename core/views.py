@@ -26,4 +26,5 @@ def search(request):
         )
     ).filter(distance__lte = dist).order_by("distance")
     # Filter by distance size
-    return HttpResponse(objs.values_list("text", "distance"))
+    #return HttpResponse(objs.values_list("text", "distance"))
+    return render(request, "result.html", context={"technologies": objs})

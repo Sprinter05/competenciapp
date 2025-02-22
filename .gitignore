@@ -2,3 +2,4 @@
 *.pgpass
 .venv
 __pycache__
+competenciapp.iml

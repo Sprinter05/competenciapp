@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Resultados de la búsqueda{% endblock %}
+{% block head %}
+    <style>
+        .feature-card {
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Resultados de la búsqueda</h2>
+            {% for technology in technologies %}
+                <div class="row g-4 mb-4">
+                    <div class="col-md-12">
+                        <div class="card feature-card p-4">
+                            <i class="fas fa-search feature-icon"></i>
+
+                            <h3>{{ technology.text }}</h3>
+                            <p>{{ technology.distance }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+
+{% endblock %}
