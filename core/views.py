@@ -1,11 +1,11 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from pgvector.django import L2Distance
-from models import Embeddings
+from .models import Embedding
 from django.http import HttpResponse
 from ollama import Client
 
-client = Client(
+llama = Client(
     host="http://localhost:11434",
 )
 
@@ -20,14 +20,14 @@ def search(request):
     return HttpResponse("Search page. Query: " + request.GET.get("q", ""))
 
 def data(request):
-    objs = Embeddings.objects.order_by(
-        L2Distance('embedding', request.GET.get("q", "")))[:10]
+    objs = Embedding.objects.order_by(
+        L2Distance('Embeddings', request.GET.get("q", "")))[:10]
     return HttpResponse(objs.values_list("text"))
 
 def llama(request):
     prompt = request.GET.get("prompt", "")
     data = request.GET.get("data", "")
-    response = client.generate(
+    response = llama.generate(
         model='llama3.2', 
         prompt=f"Given this {data}, return the most relevant profiles according to {prompt}."
     )
