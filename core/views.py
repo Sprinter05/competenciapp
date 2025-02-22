@@ -1,6 +1,6 @@
 import ollama
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 from pgvector.django import CosineDistance
 
@@ -90,3 +90,36 @@ def addlang(request):
     lang = Language(
         name = request.POST.get("l", "")
     )
+
+def prompt(request):
+    query = request.GET.get("q", "")
+    # ? Max amount of keywords
+    base = "Only output in your following prompt a comma separated list of programming languages with programming libraries and/or frameworks keywords for the following text, up to a max of 5 keywords: "
+
+    keywords = ollama.chat(
+        model='llama3.2:1b',
+        messages=[{
+            "role": "user",
+            "content": f"{base} {query}" 
+        }]
+    )
+
+    matrixes = []
+    words = keywords.split(",")
+    for word in words:
+        embed = ollama.embeddings(
+            prompt = word,
+            model = "mxbai-embed-large"
+        )
+        matrixes.append(embed)
+
+    embeds = []
+    for matrix in matrixes:
+        embeds.append(Embedding.objects.annotate(
+            distance = CosineDistance(
+                'embedding', 
+                matrix["embedding"]
+            )
+        ).filter(distance__lte = 0.5).order_by("distance"))
+
+    # TODO: Get all user objects
