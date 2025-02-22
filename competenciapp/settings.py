@@ -78,11 +78,9 @@ WSGI_APPLICATION = 'competenciapp.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "vectordb",
-        "USER": "markel",
-        "PASSWORD": "puto",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "OPTIONS": {
+            "passfile": "./resources/.pgpass"
+        }
     }
 }
 

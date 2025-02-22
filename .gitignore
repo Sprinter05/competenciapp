@@ -1,4 +1,4 @@
 *.env
-.my_pgpass
+*.pgpass
 .venv
 __pycache__

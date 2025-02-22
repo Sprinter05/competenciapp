@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from pgvector.django import L2Distance
+from pgvector.django import CosineDistance
 from .models import Embedding
 from django.http import HttpResponse
 import ollama
@@ -14,15 +14,16 @@ def profile(request):
 
 def search(request):
     query = request.GET.get("q", "")
-    size = request.GET.get("s", "")
+    dist = request.GET.get("s", "")
     neighbours = ollama.embeddings(
         prompt = query,
         model = "nomic-embed-text"
     )
     objs = Embedding.objects.annotate(
-        distance = L2Distance(
+        distance = CosineDistance(
             'embedding', 
             neighbours["embedding"]
         )
-    ).filter(distance__gte = 22).order_by("distance")
+    ).filter(distance__lte = dist).order_by("distance")
+    # Filter by distance size
     return HttpResponse(objs.values_list("text", "distance"))
