@@ -64,21 +64,25 @@ def search(request):
 
 @login_required
 def profile(request):
+    user = AuthUser.objects.get(pk=request.user.id)
     context = {
-        'user': request.user,
-        'languages': None,
-        'libraries': None
+        'user': user,
+        'languages': user.langs.all(),
+        'libraries': user.libs.all(),
+        'all_languages': Language.objects.all()
     }
     return render(request, "profile.html", context)
 
 
 def get_user_profile(request, uid):
+    user = AuthUser.objects.get(pk=uid)
     context = {
-        'user': AuthUser.objects.get(pk=uid),
-        'languages': None,
-        'libraries': None
+        'user': user,
+        'languages': user.langs.all(),
+        'libraries': user.libs.all(),
+        'all_languages': Language.objects.all()
     }
-
+    print()
     return render(request, "profile.html", context)
 
 @login_required
