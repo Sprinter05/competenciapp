@@ -28,9 +28,12 @@ class UserAuth(models.Model):
     id = models.AutoField(primary_key=True)
     username = models.TextField(null=True)
 
-# Associates a library to the user competent at said library
-# This table can also be used to associate languages to users
 class UserLib(models.Model):
     id = models.AutoField(primary_key=True)
     u_id = models.ForeignKey("core.UserAuth", on_delete=models.CASCADE)
     lib_id = models.ForeignKey("core.Library", on_delete=models.CASCADE)
+
+class UserLang(models.Model):
+    id = models.AutoField(primary_key=True)
+    u_id = models.ForeignKey("core.UserAuth", on_delete=models.CASCADE)
+    lang_id = models.ForeignKey("core.Language", on_delete=models.CASCADE)
