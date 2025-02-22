@@ -2,10 +2,6 @@ from django.conf import settings
 from django.db import models
 from pgvector.django import VectorField
 from django.contrib.auth.models import AbstractUser
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/newdb
 
 # Holds the vector of each token
 class Embedding(models.Model):
