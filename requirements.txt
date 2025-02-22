@@ -2,3 +2,4 @@ Django~=5.1.6
 pgvector~=0.3.6
 ollama~=0.4.7
 psycopg2-binary~=2.9.10
+dotenv~=0.9.9

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Resultados de la búsqueda{% endblock %}
+{% block head %}
+    <style>
+        .feature-card {
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #search-form {
+            align-items: center;
+        }
+
+        #search-button {
+            float: left;
+            left: 50%;
+            transform: translateX(-50%);
+            position: relative;
+
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Resultados de la búsqueda</h2>
+            <form method="get" action="{% url 'search' %}">
+                <div class="row g-4 mb-5">
+                    <div class="col-md-12">
+                        <div class="card search-card p-4">
+                            <div id="search-form" class="row g-4">
+                                <div id="text-search" class="col-md-6">
+                                    <input type="text" class="form-control" name="q"
+                                           placeholder="Buscar tecnología" value="{{ search }}">
+                                </div>
+                                <div id="range-search" class="col-md-4">
+                                    <input type="range" class="form-range" id="customRange1" min="0.2" max="0.5" step="0.001"
+                                           name="s" value="{{ distance }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <button id="search-button" type="submit" class="btn btn-primary">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            {% csrf_token %}
+            {% for technology in technologies %}
+                <div class="row g-4 mb-4">
+                    <div class="col-md-12">
+                        <div class="card feature-card p-4">
+                            <i class="fas fa-search feature-icon"></i>
+
+                            <h3>{{ technology.text }}</h3>
+                            <p>{{ technology.distance }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+
+{% endblock %}

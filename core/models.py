@@ -1,7 +1,8 @@
 from django.db import models
+from django.conf import settings
 from pgvector.django import VectorField
 
-# Create your models here.File "/home/markel/competenciapp/evnv/lib/python3.13/site-packages/django/db/backend
+# Holds the vector of each token
 class Embedding(models.Model):
     id = models.AutoField(primary_key=True)
     embedding = VectorField(
@@ -11,17 +12,23 @@ class Embedding(models.Model):
     )
     text=models.TextField(null = True) # text is the query given to ollama
 
-class Competence(models.Model):
+class Language(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.TextField(null = True)
-    description = models.TextField(null = True)
-    embedding_id = models.ForeignKey("core.Embedding", on_delete=models.CASCADE)
+    name = models.TextField(null=True)
+    description = models.TextField(null=True)
+    embed_id = models.ForeignKey("core.Embedding", on_delete=models.CASCADE)
 
-class UserAuth(models.Model):
+class Library(models.Model):
     id = models.AutoField(primary_key=True)
-    username = models.TextField(null = True)
+    name = models.TextField(null=True)
+    description = models.TextField(null=True)
+    lang_id = models.ForeignKey("core.Language", on_delete=models.CASCADE)
+    embed_id = models.ForeignKey("core.Embedding", on_delete=models.CASCADE)
 
-class UserCompetence(models.Model):
-    uid = models.ForeignKey("core.UserAuth", primary_key=True, on_delete=models.CASCADE)
-    cid = models.ForeignKey("core.Embedding", on_delete=models.CASCADE)
-    unique_together = (("key1", "key2"))
+class UserLib(models.Model):
+    u_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    lib_id = models.ForeignKey("core.Library", on_delete=models.CASCADE)
+
+class UserLang(models.Model):
+    u_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    lang_id = models.ForeignKey("core.Language", on_delete=models.CASCADE)

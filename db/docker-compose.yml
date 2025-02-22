@@ -8,6 +8,8 @@ services:
       - "127.0.0.1:11434:11434"
     volumes:
       - "ollama_models:/root/.ollama"
+    post_start:
+      - command: ollama pull nomic-embed-text
     networks:
       - ollama-docker
   pgdb:
