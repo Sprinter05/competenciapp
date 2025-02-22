@@ -23,7 +23,6 @@ def search(request):
         dist = float(dist)
         category = int(category)
     except ValueError as e:
-        print(e)
         return redirect("index")
 
     neighbours = ollama.embeddings(
@@ -64,18 +63,8 @@ def search(request):
 
 @login_required
 def profile(request):
-    # Obtener los lenguajes del usuario
-    """
-
-    user_languages = UserLang.objects.filter(u_id__username=request.user.username)
-    languages = [ul.lang_id for ul in user_languages]
-
-    # Obtener las librerías del usuario
-    user_libraries = UserLib.objects.filter(u_id__username=request.user.username)
-    libraries = [ul.lib_id for ul in user_libraries]
-    """
-
     context = {
+        'user': request.user,
         'languages': None,
         'libraries': None
     }
@@ -86,6 +75,24 @@ def addlang(request):
     lang = Language(
         name = request.POST.get("l", "")
     )
+
+def get_user_profile(request, uid):
+    context = {
+        'user': User.objects.get(pk=uid),
+        'languages': None,
+        'libraries': None
+    }
+
+    return render(request, "profile.html", context)
+
+@login_required
+def add_language(request):
+    return HttpResponse("Add Language")
+
+
+@login_required
+def add_library(request):
+    return HttpResponse("Add Library")
 
 def prompt(request):
     query = request.GET.get("q", "")
@@ -113,7 +120,7 @@ def prompt(request):
     for matrix in matrixes:
         embeds.append(Embedding.objects.annotate(
             distance = CosineDistance(
-                'embedding', 
+                'embedding',
                 matrix["embedding"]
             )
         ).filter(distance__lte = 0.5).order_by("distance"))
