@@ -21,3 +21,4 @@ class LibraryAdmin(admin.ModelAdmin):
 admin.site.register(Embedding, EmbeddingAdmin)
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Library, LibraryAdmin)
+admin.site.register(User, UserAdmin)

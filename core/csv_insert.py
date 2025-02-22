@@ -45,8 +45,7 @@ def insert_user_lib():
         fields = line.split(";")
         lib_ids = fields[1].split(",")
         for id in lib_ids:
-            userlib = UserLib(u_id=User(id=int(fields[0])), lib_id=Library(id=int(id)))
-            userlib.save()
+            User.objects.get(id=int(fields[0])).libs.add(Library(id=int(id)))
 
 
 def insert_user_lang():
@@ -56,8 +55,7 @@ def insert_user_lang():
         fields = line.split(";")
         lang_ids = fields[1].split(",")
         for id in lang_ids:
-            userlang = UserLang(u_id=User(id=int(fields[0])), lang_id=Language(id=int(id)))
-            userlang.save()
+            User.objects.get(id=int(fields[0])).langs.add(Language(id=int(id)))
 
 insert_langs()
 insert_libs()
