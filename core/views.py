@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from pgvector.django import CosineDistance
@@ -27,3 +28,24 @@ def search(request):
     ).filter(distance__lte = dist).order_by("distance")
 
     return render(request, "result.html", context={"technologies": objs, "search": query, "distance": dist})
+
+
+@login_required
+def profile(request):
+    # Obtener los lenguajes del usuario
+    """
+
+    user_languages = UserLang.objects.filter(u_id__username=request.user.username)
+    languages = [ul.lang_id for ul in user_languages]
+
+    # Obtener las librerías del usuario
+    user_libraries = UserLib.objects.filter(u_id__username=request.user.username)
+    libraries = [ul.lib_id for ul in user_libraries]
+    """
+
+    context = {
+        'languages': None,
+        'libraries': None
+    }
+
+    return render(request, "profile.html", context)

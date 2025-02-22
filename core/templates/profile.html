@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil{% endblock %}
+{% block head %}
+    <style>
+        h3 {
+            align-items: center;
+        }
+
+        .profile-section {
+            background: linear-gradient(135deg, #4158D0 0%, #C850C0 100%);
+            color: white;
+            padding: 40px 0;
+        }
+
+        .tech-card {
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tech-badge {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            margin: 5px;
+            background-color: #4158D0;
+            color: white;
+            border-radius: 30px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="profile-section">
+        <div class="container">
+            <div class="text-center">
+                <i class="fas fa-user-circle fa-5x mb-3"></i>
+                <h1>{{ user.username }}</h1>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card tech-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-code me-2"></i>Lenguajes</h3>
+                        <div class="mt-3">
+                            {% for lang in languages %}
+                                <span class="tech-badge">{{ lang.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card tech-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-cube me-2"></i>Librerías</h3>
+                        <div class="mt-3">
+                            {% for lib in libraries %}
+                                <span class="tech-badge">{{ lib.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
