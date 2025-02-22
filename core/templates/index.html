@@ -71,27 +71,74 @@
             color: white;
             padding: 40px 0;
         }
+
+        .hero-section .input-group {
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .hero-section .form-control,
+        .hero-section .form-select,
+        .hero-section .btn {
+            border: none;
+        }
+
+        .hero-section .form-control:focus,
+        .hero-section .form-select:focus {
+            box-shadow: none;
+        }
+
+        .hero-section .form-select {
+            border-left: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .hero-section .btn:hover {
+            background-color: #f8f9fa;
+        }
+
     </style>
 {% endblock %}
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-3">Descubre al experto dentro de tu equipo</h1>
-        <p class="lead mb-4">Encuentra a la persona con los conocimientos que buscas en tu empresa</p>
-        <form action="{% url "search" %}" class="row justify-content-center" method="get">
-            <div class="col-md-6">
-                <div class="input-group mb-4">
-                    <input type="text" class="form-control form-control-lg" name="q"
-                           placeholder="Busca tecnologías, habilidades o áreas de conocimiento...">
-                    <input type="hidden" name="s" value="0.5">
-                    <button class="btn btn-light" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">Descubre al experto dentro de tu equipo</h1>
+            <p class="lead mb-4">Encuentra a la persona con los conocimientos que buscas en tu empresa</p>
+            <form action="{% url 'search' %}" class="row justify-content-center" method="get">
+                <div class="col-md-8">
+                    <div class="d-flex gap-2 mb-4">
+                        <div class="input-group">
+                            <input type="text"
+                                   class="form-control form-control-lg"
+                                   name="q"
+                                   placeholder="Busca tecnologías, habilidades o áreas de conocimiento..."
+                                   required
+                                   title="Por favor, ingresa un término de búsqueda">
+
+                            <input type="hidden" name="s" value="0.5">
+                            <select class="form-select form-select-lg"
+                                    style="max-width: 200px;"
+                                    name="category"
+                                    aria-label="Seleccionar categoría"
+                                    required
+                                    title="Por favor, selecciona una categoría">
+
+                                <option selected disabled>Categoría</option>
+                                <option value="1">Lenguaje</option>
+                                <option value="2">Librería</option>
+                                <option value="3">Todo</option>
+                            </select>
+                            <button class="btn btn-light btn-lg" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
+    </section>
     {% comment %} Aqui se pueden agregar badges con las tecnologías más populares
         <div class="d-flex justify-content-center flex-wrap">
             <span class="badge bg-light text-dark m-1 p-2">Python</span>

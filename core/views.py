@@ -1,10 +1,11 @@
+import ollama
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from pgvector.django import CosineDistance
+
 from .models import Embedding, Library, Language, UserLib, UserLang
-from django.http import HttpResponse
-import ollama
+
 
 # Create your views here.
 def index(request):
@@ -16,6 +17,15 @@ def profile(request):
 def search(request):
     query = request.GET.get("q", "")
     dist = request.GET.get("s", 0.5)
+    category = request.GET.get("category", 0)
+
+    try:
+        dist = float(dist)
+        category = int(category)
+    except ValueError as e:
+        print(e)
+        return redirect("index")
+
     neighbours = ollama.embeddings(
         prompt = query,
         model = "nomic-embed-text"
@@ -29,26 +39,31 @@ def search(request):
         )
     ).filter(distance__lte = dist).order_by("distance")
 
-    # Get all languages by id
-    langs = Language.objects.all().filter(
-        embed_id__in = objs.values_list("id")
-    )
+    results = []
+    if category == 0:  # All (TODO: Fix this)
+        results = None
+    elif category == 1:  # Languages
+        langs = Language.objects.all().filter(
+            embed_id__in=objs.values_list("id")
+        )
+        results = UserLang.objects.all().filter(
+            lang_id__in=langs.values_list("id")
+        )
+    elif category == 2:  # Libraries
+        libs = Library.objects.all().filter(
+            embed_id__in=objs.values_list("id")
+        )
+        results = UserLib.objects.all().filter(
+            lib_id__in=libs.values_list("id")
+        )
+    else:
+        return redirect("index")
 
-    # Get all libraries by id
-    libs = Library.objects.all().filter(
-        embed_id__in = objs.values_list("id")
-    )
+    print(dist)
+    print(type(dist))
 
-    # Get related users
-    ulangs = UserLang.objects.all().filter(
-        lang_id__in = langs.values_list("id")
-    )
-    ulibs = UserLib.objects.all().filter(
-        lib_id__in = libs.values_list("id")
-    )
-
-    search = ulangs.values() + ulibs.values()
-    return render(request, "result.html", context={"technologies": search})
+    return render(request, "result.html",
+                  context={"search": query, "distance": dist, "results": results, "category": category})
 
 
 @login_required
