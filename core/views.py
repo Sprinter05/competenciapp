@@ -13,24 +13,16 @@ def profile(request):
     return HttpResponse("Profile page")
 
 def search(request):
-    return HttpResponse("Search page. Query: " + request.GET.get("q", ""))
-
-def data(request):
     query = request.GET.get("q", "")
+    size = request.GET.get("s", "")
     neighbours = ollama.embeddings(
         prompt = query,
         model = "nomic-embed-text"
     )
-    objs = Embedding.objects.order_by(
-        L2Distance('embedding', neighbours["embedding"]))[:10]
-    return HttpResponse(objs)
-
-def llama(request):
-    prompt = request.GET.get("prompt", "")
-    data = request.GET.get("data", "")
-    
-    response = ollama.generate(
-        model='llama3.2', 
-        prompt=f"Given this {data}, return the most relevant profiles according to {prompt}."
-    )
-    return HttpResponse(response)
+    objs = Embedding.objects.annotate(
+        distance = L2Distance(
+            'embedding', 
+            neighbours["embedding"]
+        )
+    ).filter(distance__gte = 22).order_by("distance")
+    return HttpResponse(objs.values_list("text", "distance"))
