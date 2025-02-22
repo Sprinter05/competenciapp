@@ -9,6 +9,7 @@ admin.site.register(Language)
 admin.site.register(Library)
 admin.site.register(UserLib)
 admin.site.register(UserLang)
+<<<<<<< HEAD
 admin.site.register(User, UserAdmin)
 =======
 class EmbeddingAdmin(admin.ModelAdmin):
@@ -43,3 +44,6 @@ admin.site.register(Library, LibraryAdmin)
 admin.site.register(UserLib, UserLibAdmin)
 admin.site.register(UserLang, UserLangAdmin)
 >>>>>>> origin/django
+=======
+admin.site.register(User, UserAdmin)
+>>>>>>> origin/newdb
