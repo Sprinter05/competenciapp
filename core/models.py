@@ -1,6 +1,7 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 from pgvector.django import VectorField
+
 
 # Holds the vector of each token
 class Embedding(models.Model):
@@ -24,6 +25,9 @@ class Library(models.Model):
     description = models.TextField(null=True)
     lang_id = models.ForeignKey("core.Language", on_delete=models.CASCADE)
     embed_id = models.ForeignKey("core.Embedding", on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = "Libraries"
 
 class UserLib(models.Model):
     u_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
