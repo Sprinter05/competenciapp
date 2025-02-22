@@ -14,7 +14,7 @@ def profile(request):
 
 def search(request):
     query = request.GET.get("q", "")
-    dist = request.GET.get("s", "")
+    dist = request.GET.get("s", 0.5)
     neighbours = ollama.embeddings(
         prompt = query,
         model = "nomic-embed-text"
@@ -25,6 +25,5 @@ def search(request):
             neighbours["embedding"]
         )
     ).filter(distance__lte = dist).order_by("distance")
-    # Filter by distance size
-    #return HttpResponse(objs.values_list("text", "distance"))
-    return render(request, "result.html", context={"technologies": objs})
+
+    return render(request, "result.html", context={"technologies": objs, "search": query, "distance": dist})
