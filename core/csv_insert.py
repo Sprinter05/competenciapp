@@ -1,5 +1,4 @@
 from core.models import *
-from django.contrib.auth.models import User
 import ollama
 
 def insert_langs():
@@ -33,7 +32,7 @@ def insert_users():
 
     for line in file:
         fields = line.split(",")
-        user = User.objects.create_user(username=fields[1], email="", password="")
+        user = AuthUser.objects.create_user(username=fields[1], email="", password="")
         user.save()
         
     file.close()
@@ -45,7 +44,9 @@ def insert_user_lib():
         fields = line.split(";")
         lib_ids = fields[1].split(",")
         for id in lib_ids:
-            User.objects.get(id=int(fields[0])).libs.add(Library(id=int(id)))
+            user = AuthUser.objects.get(id=int(fields[0]))
+            lib = Library.objects.get(id=int(id))
+            user.libs.add(lib)
 
 
 def insert_user_lang():
@@ -55,7 +56,9 @@ def insert_user_lang():
         fields = line.split(";")
         lang_ids = fields[1].split(",")
         for id in lang_ids:
-            User.objects.get(id=int(fields[0])).langs.add(Language(id=int(id)))
+            user = AuthUser.objects.get(id=int(fields[0]))
+            lang = Language.objects.get(id=int(id))
+            user.langs.add(lang)
 
 insert_langs()
 insert_libs()

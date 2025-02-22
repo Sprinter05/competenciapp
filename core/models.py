@@ -1,6 +1,6 @@
 from django.db import models
 from pgvector.django import VectorField
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 # Holds the vector of each token
 class Embedding(models.Model):
@@ -28,8 +28,7 @@ class Library(models.Model):
     class Meta:
         verbose_name_plural = "Libraries"
 
-class AuthUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class AuthUser(AbstractUser):
     id = models.AutoField(primary_key=True)
     libs = models.ManyToManyField("core.Library", related_name="users")
     langs = models.ManyToManyField("core.Language", related_name="users")
