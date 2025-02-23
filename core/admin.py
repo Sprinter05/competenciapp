@@ -1,7 +1,7 @@
-from core.models import *
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
+from core.models import *
 from core.models import AuthUser
 
 
@@ -12,9 +12,11 @@ class UserInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = "user"
 
+
 # Define a new User admin
 class UserAdmin(BaseUserAdmin):
     inlines = [UserInline]
+
 
 # Re-register UserAdmin
 admin.site.register(Embedding)

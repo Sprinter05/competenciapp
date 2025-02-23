@@ -1,10 +1,10 @@
 import ollama
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from pgvector.django import CosineDistance
 
-from .models import Embedding, Library, Language, AuthUser
+from .models import AuthUser, Embedding, Language, Library
 
 
 # Create your views here.
@@ -23,53 +23,49 @@ def search(request):
     except ValueError as e:
         return redirect("index")
 
-    neighbours = ollama.embeddings(
-        prompt = query,
-        model = "mxbai-embed-large"
-    )
+    neighbours = ollama.embeddings(prompt=query, model="mxbai-embed-large")
 
     # Get all matching embeds
-    objs = Embedding.objects.annotate(
-        distance = CosineDistance(
-            'embedding', 
-            neighbours["embedding"]
+    objs = (
+        Embedding.objects.annotate(
+            distance=CosineDistance("embedding", neighbours["embedding"])
         )
-    ).filter(distance__lte = dist).order_by("distance")
+        .filter(distance__lte=dist)
+        .order_by("distance")
+    )
 
     data = {}
 
     if category == 0:  # All (TODO: Fix this)
         pass
     elif category == 1:  # Languages
-        langs = Language.objects.all().filter(
-            embed_id__in=objs.values_list("id")
-        )
+        langs = Language.objects.all().filter(embed_id__in=objs.values_list("id"))
         for technology in langs:
             data[technology] = AuthUser.objects.filter(langs=technology)
     elif category == 2:  # Libraries
-        libs = Library.objects.all().filter(
-            embed_id__in=objs.values_list("id")
-        )
+        libs = Library.objects.all().filter(embed_id__in=objs.values_list("id"))
         for technology in libs:
             data[technology] = AuthUser.objects.filter(libs=technology)
     else:
         return redirect("index")
 
-
     print(data)
-    return render(request, "result.html",
-                  context={"search": query, "distance": dist, "category": category, "data": data})
+    return render(
+        request,
+        "result.html",
+        context={"search": query, "distance": dist, "category": category, "data": data},
+    )
 
 
 @login_required
 def profile(request):
     user = AuthUser.objects.get(pk=request.user.id)
     context = {
-        'user': user,
-        'self': True,
-        'languages': user.langs.all(),
-        'libraries': user.libs.all(),
-        'all_languages': Language.objects.all()
+        "user": user,
+        "self": True,
+        "languages": user.langs.all(),
+        "libraries": user.libs.all(),
+        "all_languages": Language.objects.all(),
     }
     return render(request, "profile.html", context)
 
@@ -77,12 +73,13 @@ def profile(request):
 def get_user_profile(request, uid):
     user = AuthUser.objects.get(pk=uid)
     context = {
-        'user': user,
-        'self': False or request.user.id == uid,
-        'languages': user.langs.all(),
-        'libraries': user.libs.all(),
+        "user": user,
+        "self": False or request.user.id == uid,
+        "languages": user.langs.all(),
+        "libraries": user.libs.all(),
     }
     return render(request, "profile.html", context)
+
 
 @login_required
 def add_language(request):
@@ -116,51 +113,41 @@ def add_library(request):
         return redirect("profile")
     return HttpResponse("Add Library")
 
+
 def prompt(request):
     query = request.GET.get("q", "")
     base = "Only output in your following prompt a comma separated list of programming languages with programming libraries and/or frameworks keywords for the following text, up to a max of 5 keywords: "
 
     keywords = ollama.chat(
-        model='llama3.2:1b',
-        messages=[{
-            "role": "user",
-            "content": f"{base} {query}"
-        }]
+        model="llama3.2:1b", messages=[{"role": "user", "content": f"{base} {query}"}]
     )
 
     matrixes = []
     words = keywords.split(",")
     for word in words:
-        embed = ollama.embeddings(
-            prompt = word,
-            model = "mxbai-embed-large"
-        )
+        embed = ollama.embeddings(prompt=word, model="mxbai-embed-large")
         matrixes.append(embed)
 
     embeds = []
     for matrix in matrixes:
-        embeds.append(Embedding.objects.annotate(
-            distance = CosineDistance(
-                'embedding',
-                matrix["embedding"]
+        embeds.append(
+            Embedding.objects.annotate(
+                distance=CosineDistance("embedding", matrix["embedding"])
             )
-        ).filter(distance__lte = 0.5).order_by("distance"))
+            .filter(distance__lte=0.5)
+            .order_by("distance")
+        )
 
     # TODO: Get all user objects
 
 
 def language(request, uid):
     lang = Language.objects.get(pk=uid)
-    context = {
-        'language': lang,
-        'libraries': Library.objects.filter(lang_id=lang)
-    }
+    context = {"language": lang, "libraries": Library.objects.filter(lang_id=lang)}
     return render(request, "language.html", context)
+
 
 def library(request, uid):
     lib = Library.objects.get(pk=uid)
-    context = {
-        'library': lib,
-        'language': Language.objects.get(pk=lib.lang_id.id)
-    }
+    context = {"library": lib, "language": Language.objects.get(pk=lib.lang_id.id)}
     return render(request, "library.html", context)

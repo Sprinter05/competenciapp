@@ -1,6 +1,7 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from pgvector.django import VectorField
-from django.contrib.auth.models import AbstractUser
+
 
 # Holds the vector of each token
 class Embedding(models.Model):
@@ -10,10 +11,11 @@ class Embedding(models.Model):
         null=False,
         blank=False,
     )
-    text=models.TextField(null = True) # text is the query given to ollama
+    text = models.TextField(null=True)  # text is the query given to ollama
 
     def __str__(self):
         return self.text
+
 
 class Language(models.Model):
     id = models.AutoField(primary_key=True)
@@ -37,6 +39,7 @@ class Library(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class AuthUser(AbstractUser):
     id = models.AutoField(primary_key=True)
