@@ -133,7 +133,10 @@ def chatbot(request):
         query = request.POST.get("q", "")
         if query == "":
             return redirect("chatbot")
-        possibilities = ("PROGRAMMING LANGUAGES, and only PROGRAMMING LANGUAGES (not libraries)", "LIBRARIES/FRAMEWORKS")
+        possibilities = (
+            "PROGRAMMING LANGUAGES, and only PROGRAMMING LANGUAGES (not libraries)",
+            "LIBRARIES/FRAMEWORKS",
+        )
         x = possibilities[0 if request.POST.get("search_type") == "language" else 1]
         print(x)
         base = f"Only output in your following prompt a comma separated list of {x} for the following text, up to a max of 5 keywords: "
@@ -146,12 +149,18 @@ def chatbot(request):
         words = (json.loads(keywords.json())["message"]["content"]).split(", ")
 
         print(words)
-        data = find_near(words, 0.35, 1 if request.POST.get("search_type") == "language" else 2)
+        data = find_near(
+            words, 0.35, 1 if request.POST.get("search_type") == "language" else 2
+        )
         return render(
             request,
             "result.html",
-            context={"search": ", ".join(words), "distance": .35,
-                     "category": 1 if request.POST.get("search_type") == "language" else 2, "data": data},
+            context={
+                "search": ", ".join(words),
+                "distance": 0.35,
+                "category": 1 if request.POST.get("search_type") == "language" else 2,
+                "data": data,
+            },
         )
     return render(request, "chatbot.html")
 
