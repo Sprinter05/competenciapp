@@ -96,7 +96,6 @@ def add_library(request):
 
 def prompt(request):
     query = request.GET.get("q", "")
-    # ? Max amount of keywords
     base = "Only output in your following prompt a comma separated list of programming languages with programming libraries and/or frameworks keywords for the following text, up to a max of 5 keywords: "
 
     keywords = ollama.chat(
