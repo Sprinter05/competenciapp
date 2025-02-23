@@ -1,0 +1,7 @@
+**/__pycache__
+**/migrations
+docker
+.venv
+.idea
+.gitignore
+Dockerfile

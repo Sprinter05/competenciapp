@@ -1,4 +1,3 @@
-# Compose a postgres database together with the extension pgvector
 services:
   ollama:
     container_name: ollama
@@ -9,9 +8,10 @@ services:
     volumes:
       - "ollama_models:/root/.ollama"
     post_start:
-      - command: ollama pull nomic-embed-text
+      - command: ollama pull mxbai-embed-large
     networks:
       - ollama-docker
+      
   pgdb:
     container_name: postgresdb
     image: ankane/pgvector
@@ -21,6 +21,16 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "127.0.0.1:5432:5432"
+    env_file: ./.env
+    networks:
+      - ollama-docker
+
+  competiapp:
+    container_name: competiapp
+    image: Sprinter05/competiapp:v1
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
     env_file: ./.env
     networks:
       - ollama-docker
