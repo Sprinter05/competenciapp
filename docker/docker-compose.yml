@@ -21,17 +21,17 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "127.0.0.1:5432:5432"
-    env_file: ./.env
+    env_file: ../.env
     networks:
       - ollama-docker
 
   competiapp:
-    container_name: competiapp
-    image: Sprinter05/competiapp:v1
+    container_name: competenciapp
+    image: Sprinter05/competenciapp:v1
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"
-    env_file: ./.env
+    env_file: ../.env
     networks:
       - ollama-docker
 

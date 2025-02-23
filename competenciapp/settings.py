@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'competenciapp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-load_dotenv("db/.env")
+load_dotenv(".env")
 
 DATABASES = {
     "default": {
