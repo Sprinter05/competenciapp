@@ -1,9 +1,10 @@
+import json
+
 import ollama
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from pgvector.django import CosineDistance
-from itertools import chain
 
 from .models import AuthUser, Embedding, Language, Library
 
@@ -13,29 +14,23 @@ def index(request):
     return render(request, "index.html")
 
 
-def search(request):
-    query = request.GET.get("q", "")
-    dist = request.GET.get("s", 0.5)
-    category = request.GET.get("category", 0)
-
-    try:
-        dist = float(dist)
-        category = int(category)
-    except ValueError as e:
-        return redirect("index")
-    
+def find_near(words, dist, category):
     embeddings = []
-    words = query.split(" ")
+
     for word in words:
         embed = ollama.embeddings(prompt=word, model="mxbai-embed-large")
         embeddings.append(embed)
 
-    # Get all matching embeds
+        # Get all matching embeds
     objs = Embedding.objects.none()
     for val in embeddings:
-        obj = Embedding.objects.annotate(
-            distance=CosineDistance("embedding", val["embedding"])
-        ).filter(distance__lte=dist).order_by("distance")
+        obj = (
+            Embedding.objects.annotate(
+                distance=CosineDistance("embedding", val["embedding"])
+            )
+            .filter(distance__lte=dist)
+            .order_by("distance")
+        )
         objs |= obj
 
     data = {}
@@ -52,7 +47,22 @@ def search(request):
             data[technology] = AuthUser.objects.filter(libs=technology)
     else:
         return redirect("index")
+    return data
 
+
+def search(request):
+    query = request.GET.get("q", "")
+    dist = request.GET.get("s", 0.5)
+    category = request.GET.get("category", 0)
+
+    try:
+        dist = float(dist)
+        category = int(category)
+    except ValueError as e:
+        return redirect("index")
+
+    words = query.split(" ")
+    data = find_near(words, dist, category)
     return render(
         request,
         "result.html",
@@ -117,28 +127,48 @@ def add_library(request):
     return HttpResponse("Add Library")
 
 
-def prompt(request):
-    query = request.GET.get("q", "")
-    base = "Only output in your following prompt a comma separated list of programming languages with programming libraries and/or frameworks keywords for the following text, up to a max of 5 keywords: "
+def chatbot(request):
+    if request.method == "POST":
+        query = request.POST.get("q", "")
+        if query == "":
+            return redirect("chatbot")
+        base = "Only output in your following prompt a comma separated list of programming languages with programming libraries and/or frameworks keywords for the following text, up to a max of 5 keywords: "
 
-    keywords = ollama.chat(
-        model="llama3.2:1b", messages=[{"role": "user", "content": f"{base} {query}"}]
-    )
+        keywords = ollama.chat(
+            model="llama3.2:1b",
+            messages=[{"role": "user", "content": f"{base} {query}"}],
+        )
 
-    matrixes = []
-    words = keywords.split(",")
-    for word in words:
-        embed = ollama.embeddings(prompt=word, model="mxbai-embed-large")
-        matrixes.append(embed)
+        matrixes = []
+        print(json.loads(keywords.json())["message"]["content"])
+        words = (json.loads(keywords.json())["message"]["content"]).split(", ")
+        for word in words:
+            embed = ollama.embeddings(prompt=word, model="mxbai-embed-large")
+            matrixes.append(embed)
 
-    embeds = Embedding.objects.none()
-    for matrix in matrixes:
-        obj = Embedding.objects.annotate(
-            distance=CosineDistance("embedding", matrix["embedding"])
-        ).filter(distance__lte=0.5).order_by("distance")
-        embeds |= obj
+        embeds = []
+        for matrix in matrixes:
+            embeds.append(
+                Embedding.objects.annotate(
+                    distance=CosineDistance("embedding", matrix["embedding"])
+                )
+                .filter(distance__lte=0.5)
+                .order_by("distance")
+            )
+            embeds = Embedding.objects.none()
 
-    # TODO: USE EMBEDS AS values_list()
+        for matrix in matrixes:
+            obj = (
+                Embedding.objects.annotate(
+                    distance=CosineDistance("embedding", matrix["embedding"])
+                )
+                .filter(distance__lte=0.5)
+                .order_by("distance")
+            )
+            embeds |= obj
+
+        return HttpResponse("Chatbot" + "".join(words))
+    return render(request, "chatbot.html")
 
 
 def language(request, uid):

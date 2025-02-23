@@ -30,6 +30,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "chatbot" %}">ChatBot (Experimental!)</a>
+                </li>
                 {% if not user.is_authenticated %}
                     <li class="nav-item">
                         <a class="btn btn-primary ms-2" href="{% url 'login' %}">Iniciar sesión</a>

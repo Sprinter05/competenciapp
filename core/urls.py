@@ -11,4 +11,5 @@ urlpatterns = [
     path("technologies/language/<int:uid>", views.language, name="get_language"),
     path("technologies/library/<int:uid>", views.library, name="get_library"),
     path("search/", views.search, name="search"),
+    path("chatbot/", views.chatbot, name="chatbot"),
 ]

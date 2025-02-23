@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}ChatBot{% endblock %}
+
+{% block head %}
+    <style>
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .chat-header {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 2rem;
+        }
+
+        .chat-form {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        .type-selector {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .type-selector label {
+            margin-right: 1.5rem;
+            cursor: pointer;
+        }
+
+        .query-input {
+            position: relative;
+        }
+
+        .query-input textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        .help-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <section class="chat-header">
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold">Asistente de Búsqueda</h1>
+            <p class="lead">Descubre las tecnologías que necesitas de forma conversacional</p>
+        </div>
+    </section>
+
+    <div class="container mb-5">
+        <div class="chat-container">
+            <div class="chat-form">
+                <form method="post" action="{% url 'chatbot' %}">
+                    {% csrf_token %}
+
+                    <div class="type-selector">
+                        <div class="mb-3">
+                            <h5>¿Qué tipo de tecnología buscas?</h5>
+                            <div class="mt-4">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="search_type"
+                                           id="languageRadio" value="language" required>
+                                    <label class="form-check-label" for="languageRadio">
+                                        <i class="fas fa-code me-1"></i> Lenguaje de Programación
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="search_type"
+                                           id="libraryRadio" value="library" required>
+                                    <label class="form-check-label" for="libraryRadio">
+                                        <i class="fas fa-book me-1"></i> Librería/Framework
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="query-input">
+                        <label for="queryText" class="form-label">
+                            Describe lo que necesitas
+                        </label>
+                        <textarea class="form-control" id="queryText" name="q"
+                                  placeholder="Ejemplo: Necesito un lenguaje orientado a machine learning con buen soporte para análisis de datos..."
+                                  required></textarea>
+                        <p class="help-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Sé específico sobre los requisitos y características que buscas
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-4">
+                            <i class="fas fa-search me-2"></i>
+                            Buscar Tecnologías
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
