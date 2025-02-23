@@ -20,3 +20,4 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(Embedding)
 admin.site.register(Language)
 admin.site.register(Library)
+admin.site.register(AuthUser)

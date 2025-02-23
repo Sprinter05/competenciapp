@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import LoginForm, RegisterForm
+
+from .forms import RegisterForm
+
 
 def sign_up(request):
     if request.method == 'GET':

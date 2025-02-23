@@ -1,6 +1,5 @@
 import ollama
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from pgvector.django import CosineDistance
@@ -67,6 +66,7 @@ def profile(request):
     user = AuthUser.objects.get(pk=request.user.id)
     context = {
         'user': user,
+        'self': True,
         'languages': user.langs.all(),
         'libraries': user.libs.all(),
         'all_languages': Language.objects.all()
@@ -78,20 +78,42 @@ def get_user_profile(request, uid):
     user = AuthUser.objects.get(pk=uid)
     context = {
         'user': user,
+        'self': False or request.user.id == uid,
         'languages': user.langs.all(),
         'libraries': user.libs.all(),
-        'all_languages': Language.objects.all()
     }
-    print()
     return render(request, "profile.html", context)
 
 @login_required
 def add_language(request):
+    if request.method == "POST":
+        lang = request.POST.get("name")
+        desc = request.POST.get("description")
+        response = ollama.embed(model="mxbai-embed-large", input=lang)
+        embedding = Embedding(embedding=response["embeddings"][0], text=lang)
+        embedding.save()
+        lang = Language(name=lang, description=desc, embed_id=embedding)
+        lang.save()
+        lang.users.add(AuthUser.objects.get(pk=request.user.id))
+
+        return redirect("profile")
     return HttpResponse("Add Language")
 
 
 @login_required
 def add_library(request):
+    if request.method == "POST":
+        lang = Language.objects.get(pk=request.POST.get("language"))
+        lib = request.POST.get("name")
+        desc = request.POST.get("description")
+        response = ollama.embed(model="mxbai-embed-large", input=lib)
+        embedding = Embedding(embedding=response["embeddings"][0], text=lib)
+        embedding.save()
+        lib = Library(name=lib, description=desc, lang_id=lang, embed_id=embedding)
+        lib.save()
+        lib.users.add(AuthUser.objects.get(pk=request.user.id))
+
+        return redirect("profile")
     return HttpResponse("Add Library")
 
 def prompt(request):
@@ -125,3 +147,20 @@ def prompt(request):
         ).filter(distance__lte = 0.5).order_by("distance"))
 
     # TODO: Get all user objects
+
+
+def language(request, uid):
+    lang = Language.objects.get(pk=uid)
+    context = {
+        'language': lang,
+        'libraries': Library.objects.filter(lang_id=lang)
+    }
+    return render(request, "language.html", context)
+
+def library(request, uid):
+    lib = Library.objects.get(pk=uid)
+    context = {
+        'library': lib,
+        'language': Language.objects.get(pk=lib.lang_id.id)
+    }
+    return render(request, "library.html", context)

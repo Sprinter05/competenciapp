@@ -12,11 +12,18 @@ class Embedding(models.Model):
     )
     text=models.TextField(null = True) # text is the query given to ollama
 
+    def __str__(self):
+        return self.text
+
 class Language(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.TextField(null=True)
     description = models.TextField(null=True)
     embed_id = models.ForeignKey("core.Embedding", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
 
 class Library(models.Model):
     id = models.AutoField(primary_key=True)
@@ -28,7 +35,13 @@ class Library(models.Model):
     class Meta:
         verbose_name_plural = "Libraries"
 
+    def __str__(self):
+        return self.name
+
 class AuthUser(AbstractUser):
     id = models.AutoField(primary_key=True)
     libs = models.ManyToManyField("core.Library", related_name="users")
     langs = models.ManyToManyField("core.Language", related_name="users")
+
+    def __str__(self):
+        return self.username
