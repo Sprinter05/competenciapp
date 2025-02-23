@@ -9,6 +9,7 @@ services:
       - "ollama_models:/root/.ollama"
     post_start:
       - command: ollama pull mxbai-embed-large
+      - command: ollama pull llama3.2:1b
     networks:
       - ollama-docker
       
