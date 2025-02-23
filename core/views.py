@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from pgvector.django import CosineDistance
+from itertools import chain
 
 from .models import AuthUser, Embedding, Language, Library
 
@@ -22,17 +23,20 @@ def search(request):
         category = int(category)
     except ValueError as e:
         return redirect("index")
-
-    neighbours = ollama.embeddings(prompt=query, model="mxbai-embed-large")
+    
+    embeddings = []
+    words = query.split(" ")
+    for word in words:
+        embed = ollama.embeddings(prompt=word, model="mxbai-embed-large")
+        embeddings.append(embed)
 
     # Get all matching embeds
-    objs = (
-        Embedding.objects.annotate(
-            distance=CosineDistance("embedding", neighbours["embedding"])
-        )
-        .filter(distance__lte=dist)
-        .order_by("distance")
-    )
+    objs = Embedding.objects.none()
+    for val in embeddings:
+        obj = Embedding.objects.annotate(
+            distance=CosineDistance("embedding", val["embedding"])
+        ).filter(distance__lte=dist).order_by("distance")
+        objs |= obj
 
     data = {}
 
@@ -49,7 +53,6 @@ def search(request):
     else:
         return redirect("index")
 
-    print(data)
     return render(
         request,
         "result.html",
@@ -128,17 +131,14 @@ def prompt(request):
         embed = ollama.embeddings(prompt=word, model="mxbai-embed-large")
         matrixes.append(embed)
 
-    embeds = []
+    embeds = Embedding.objects.none()
     for matrix in matrixes:
-        embeds.append(
-            Embedding.objects.annotate(
-                distance=CosineDistance("embedding", matrix["embedding"])
-            )
-            .filter(distance__lte=0.5)
-            .order_by("distance")
-        )
+        obj = Embedding.objects.annotate(
+            distance=CosineDistance("embedding", matrix["embedding"])
+        ).filter(distance__lte=0.5).order_by("distance")
+        embeds |= obj
 
-    # TODO: Get all user objects
+    # TODO: USE EMBEDS AS values_list()
 
 
 def language(request, uid):
