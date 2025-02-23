@@ -61,7 +61,7 @@ def search(request):
     except ValueError as e:
         return redirect("index")
 
-    words = query.split(" ")
+    words = query.split(", ")
     data = find_near(words, dist, category)
     return render(
         request,
@@ -132,42 +132,24 @@ def chatbot(request):
         query = request.POST.get("q", "")
         if query == "":
             return redirect("chatbot")
-        base = "Only output in your following prompt a comma separated list of programming languages with programming libraries and/or frameworks keywords for the following text, up to a max of 5 keywords: "
+        possibilities = ("PROGRAMMING LANGUAGES, and only PROGRAMMING LANGUAGES (not libraries)", "LIBRARIES/FRAMEWORKS")
+        x = possibilities[0 if request.POST.get("language") == "search_type" else 1]
+        base = f"Only output in your following prompt a comma separated list of {x} for the following text, up to a max of 5 keywords: "
 
         keywords = ollama.chat(
             model="llama3.2:1b",
             messages=[{"role": "user", "content": f"{base} {query}"}],
         )
 
-        matrixes = []
-        print(json.loads(keywords.json())["message"]["content"])
         words = (json.loads(keywords.json())["message"]["content"]).split(", ")
-        for word in words:
-            embed = ollama.embeddings(prompt=word, model="mxbai-embed-large")
-            matrixes.append(embed)
 
-        embeds = []
-        for matrix in matrixes:
-            embeds.append(
-                Embedding.objects.annotate(
-                    distance=CosineDistance("embedding", matrix["embedding"])
-                )
-                .filter(distance__lte=0.5)
-                .order_by("distance")
-            )
-            embeds = Embedding.objects.none()
-
-        for matrix in matrixes:
-            obj = (
-                Embedding.objects.annotate(
-                    distance=CosineDistance("embedding", matrix["embedding"])
-                )
-                .filter(distance__lte=0.5)
-                .order_by("distance")
-            )
-            embeds |= obj
-
-        return HttpResponse("Chatbot" + "".join(words))
+        print(words)
+        data = find_near(words, 0.35, 1)
+        return render(
+            request,
+            "result.html",
+            context={"search": ", ".join(words), "distance": .35, "category": 1, "data": data},
+        )
     return render(request, "chatbot.html")
 
 
