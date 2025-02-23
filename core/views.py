@@ -1,18 +1,17 @@
 import ollama
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpRequest
+from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from pgvector.django import CosineDistance
 
-from .models import Embedding, Library, Language
+from .models import Embedding, Library, Language, AuthUser
 
 
 # Create your views here.
 def index(request):
     return render(request, "index.html")
 
-def profile(request):
-    return HttpResponse("Profile page")
 
 def search(request):
     query = request.GET.get("q", "")
@@ -23,7 +22,6 @@ def search(request):
         dist = float(dist)
         category = int(category)
     except ValueError as e:
-        print(e)
         return redirect("index")
 
     neighbours = ollama.embeddings(
@@ -39,53 +37,62 @@ def search(request):
         )
     ).filter(distance__lte = dist).order_by("distance")
 
-    results = []
+    data = {}
+
     if category == 0:  # All (TODO: Fix this)
-        results = None
+        pass
     elif category == 1:  # Languages
         langs = Language.objects.all().filter(
             embed_id__in=objs.values_list("id")
         )
-        results = langs
+        for technology in langs:
+            data[technology] = AuthUser.objects.filter(langs=technology)
     elif category == 2:  # Libraries
         libs = Library.objects.all().filter(
             embed_id__in=objs.values_list("id")
         )
-        results = libs
+        for technology in libs:
+            data[technology] = AuthUser.objects.filter(libs=technology)
     else:
         return redirect("index")
 
-    print(dist)
-    print(type(dist))
 
+    print(data)
     return render(request, "result.html",
-                  context={"search": query, "distance": dist, "results": results, "category": category})
+                  context={"search": query, "distance": dist, "category": category, "data": data})
 
 
 @login_required
 def profile(request):
-    # Obtener los lenguajes del usuario
-    """
-
-    user_languages = UserLang.objects.filter(u_id__username=request.user.username)
-    languages = [ul.lang_id for ul in user_languages]
-
-    # Obtener las librerías del usuario
-    user_libraries = UserLib.objects.filter(u_id__username=request.user.username)
-    libraries = [ul.lib_id for ul in user_libraries]
-    """
-
+    user = AuthUser.objects.get(pk=request.user.id)
     context = {
-        'languages': None,
-        'libraries': None
+        'user': user,
+        'languages': user.langs.all(),
+        'libraries': user.libs.all(),
+        'all_languages': Language.objects.all()
     }
-
     return render(request, "profile.html", context)
 
-def addlang(request):
-    lang = Language(
-        name = request.POST.get("l", "")
-    )
+
+def get_user_profile(request, uid):
+    user = AuthUser.objects.get(pk=uid)
+    context = {
+        'user': user,
+        'languages': user.langs.all(),
+        'libraries': user.libs.all(),
+        'all_languages': Language.objects.all()
+    }
+    print()
+    return render(request, "profile.html", context)
+
+@login_required
+def add_language(request):
+    return HttpResponse("Add Language")
+
+
+@login_required
+def add_library(request):
+    return HttpResponse("Add Library")
 
 def prompt(request):
     query = request.GET.get("q", "")
@@ -96,7 +103,7 @@ def prompt(request):
         model='llama3.2:1b',
         messages=[{
             "role": "user",
-            "content": f"{base} {query}" 
+            "content": f"{base} {query}"
         }]
     )
 
@@ -113,7 +120,7 @@ def prompt(request):
     for matrix in matrixes:
         embeds.append(Embedding.objects.annotate(
             distance = CosineDistance(
-                'embedding', 
+                'embedding',
                 matrix["embedding"]
             )
         ).filter(distance__lte = 0.5).order_by("distance"))

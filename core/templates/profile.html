@@ -1,6 +1,123 @@
 {% extends "base.html" %}
 {% block title %}Mi Perfil{% endblock %}
 {% block head %}
+{% endblock %}
+{% block content %}
+    <section class="profile-section">
+        <div class="container">
+            <div class="text-center">
+                <i class="fas fa-user-circle fa-5x mb-3"></i>
+                <h1>{{ user.username }}</h1>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card tech-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-code me-2"></i>Lenguajes</h3>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addLanguageModal">
+                                <i class="fas fa-plus me-1"></i>Añadir
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            {% for lang in languages %}
+                                <span class="tech-badge">{{ lang.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card tech-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-cube me-2"></i>Librerías</h3>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addLibraryModal">
+                                <i class="fas fa-plus me-1"></i>Añadir
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            {% for lib in libraries %}
+                                <span class="tech-badge">{{ lib.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para añadir lenguaje -->
+    <div class="modal fade" id="addLanguageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Añadir Lenguaje</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'add_language' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="languageName" class="form-label">Nombre del Lenguaje</label>
+                            <input type="text" class="form-control" id="languageName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="languageDescription" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="languageDescription" name="description" required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para añadir librería -->
+    <div class="modal fade" id="addLibraryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Añadir Librería</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'add_library' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="libraryName" class="form-label">Nombre de la Librería</label>
+                            <input type="text" class="form-control" id="libraryName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="libraryDescription" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="libraryDescription" name="description" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="languageSelect" class="form-label">Lenguaje Asociado</label>
+                            <select class="form-select" id="languageSelect" name="language" required>
+                                <option value="" disabled selected>Selecciona un lenguaje</option>
+                                {% for lang in all_languages %}
+                                    <option value="{{ lang.id }}">{{ lang.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <style>
         h3 {
             align-items: center;
@@ -32,43 +149,4 @@
             border-radius: 30px;
         }
     </style>
-{% endblock %}
-{% block content %}
-    <section class="profile-section">
-        <div class="container">
-            <div class="text-center">
-                <i class="fas fa-user-circle fa-5x mb-3"></i>
-                <h1>{{ user.username }}</h1>
-            </div>
-        </div>
-    </section>
-
-    <div class="container py-5">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card tech-card">
-                    <div class="card-body">
-                        <h3><i class="fas fa-code me-2"></i>Lenguajes</h3>
-                        <div class="mt-3">
-                            {% for lang in languages %}
-                                <span class="tech-badge">{{ lang.name }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card tech-card">
-                    <div class="card-body">
-                        <h3><i class="fas fa-cube me-2"></i>Librerías</h3>
-                        <div class="mt-3">
-                            {% for lib in libraries %}
-                                <span class="tech-badge">{{ lib.name }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 {% endblock %}
